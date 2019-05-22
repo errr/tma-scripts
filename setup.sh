@@ -45,12 +45,15 @@ echo "Downloading bootstrap..."
 ../gdown.pl "https://drive.google.com/uc?id=${bootstrap[$shardID]}" data$shardID.zip
 unzip data$shardID.zip && rm data$shardID.zip gdown*
 
-chmod +x tma.sh addnewkey.sh
+chmod +x tma.sh addnewkey.sh exportkeys.sh
 sed -i "s/4000/$port/" tma.sh
 sed -i "s/<power>/$shardingPower/" addnewkey.sh
 sed -i "s/<shard id>/$shardID/" addnewkey.sh
 
 echo "Adding new key..."
 ./addnewkey.sh
+
+echo "Exporting keys..."
+./exportkeys.sh
 
 echo "Done"
