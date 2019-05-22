@@ -16,10 +16,10 @@ bootstrap=(
         "1JIlM-DE28D5p39Mnu5BMjDMJq68QnEuh"
         "17ZssieU_s41ef6OhJEpviK3TRcimFWQT"
         "12-uvhbJS7qOQTE5lQn3lGWWq91pghPE_"
-        "1yvhvPsDhxlcHv_QsmZ_V-HSVKoqe3Gzg"
-        "1aLMVGZNBe5KdxGEU4w9b7oZjsrk5bsz_"
-        "1RKo2z_87TDy5RLfr0HFjIeZFVPHxcHvA"
-        "1JijDFxW76xNLlw-CQ_qHhFWvw6gfCHO0"
+        "1Uvyr_fAGDBjizDKB8ErTqT5Ou1s6JuY6"
+        "19L4vqJv7ZSi4isAQbrVTtwwZRdoSKOuK"
+        "10AEUiAgvX2aH6hsOig16v714BOjNrlhk"
+        "1orLOlmNI-_eThbnITaouUrvYTz-1FdkZ"
 )
 
 read -p "Shard ID (0-$lastShard, leave empty for random): " shardID
@@ -34,22 +34,23 @@ if [ -z "$port" ]; then
 fi
 
 sudo apt-get update
-sudo apt-get install -y openjdk-11-jdk haveged git unzip python python-pip
-python -m pip install gdown
+sudo apt-get install -y openjdk-11-jdk haveged git unzip wget
+wget https://raw.githubusercontent.com/circulosmeos/gdown.pl/15557edc15ad507de3cb849975897e6eec799dc0/gdown.pl
+chmod +x gdown.pl
 
 git clone https://github.com/tmacoin/tma
 cd tma
 
 echo "Downloading bootstrap..."
-gdown "https://drive.google.com/uc?id=${bootstrap[$shardID]}"
-unzip data*.zip && rm data*zip
+../gdown.pl "https://drive.google.com/uc?id=${bootstrap[$shardID]}" data$shardID.zip
+unzip data$shardID.zip && rm data$shardID.zip gdown*
 
 chmod +x tma.sh addnewkey.sh
 sed -i "s/4000/$port/" tma.sh
 sed -i "s/<power>/$shardingPower/" addnewkey.sh
 sed -i "s/<shard id>/$shardID/" addnewkey.sh
 
-echo "Adding new key, input password when prompted --"
+echo "Adding new key..."
 ./addnewkey.sh
 
 echo "Done"
