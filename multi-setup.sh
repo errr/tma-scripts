@@ -112,7 +112,7 @@ setupNode () {
                 echo "(#$ID) Downloading bootstrap..."
 		echo -n -e "${c0}"
 
-                ../gdown.pl "https://drive.google.com/uc?id=${bootstrap[$ID]}" data$ID.zip
+                ../../gdown.pl "https://drive.google.com/uc?id=${bootstrap[$ID]}" data$ID.zip
                 unzip data$ID.zip && rm data$ID.zip gdown*
         fi
 
