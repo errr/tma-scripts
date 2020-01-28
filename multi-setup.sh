@@ -67,10 +67,6 @@ if [ -z "$useBootstrap" ]; then
         useBootstrap="y"
 fi
 
-if [ -z "$exportAll" ]; then
-        exportAll="n"
-fi
-
 if [ -z "$pfPath" ]; then
 	pfPath="$(pwd)/proof"
 fi
