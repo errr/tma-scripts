@@ -12,14 +12,14 @@ shardingPower=3
 lastShard=7
 
 bootstrap=(
-        "1cS6yaBMLQM1F1lNAftGLqwiajA259mGf"
-        "1TxzSWEqW6vcO-5zs8BTeEutFmR-UaanO"
-        "1iUG5Be2--WKVoJDfIQS1l0471p3csEfK"
-        "1VP9JHC_p09lKo9vheW1hImCUvAB3I75y"
-        "1eJf_0h06QAH74s_Lrx8L3Wyq19BchEzZ"
-        "1ySK1d4yo7T0lGTaQ2IXuDDSY4eZHMBdV"
-        "15ka-mCefKC_DG5wSAdhQY3LhYXRLpsYJ"
-        "1UOohb0UTqEWCo0Cl2bSr-L1GNjivoxtr"
+        "1VaX56Hopo5o8ydWHepRpkhpA5FDYueIY"
+        "1DlsCjVTBGle1oAXkYuJJRSV-9Gvs5zu4"
+        "1QhF77sov35DrRjejGc1l0A20Eoafuo4g"
+        "11yVJWwAbaO_Xk_pGMQ_bDFD_08lV-eN4"
+        "1lHmF9WNgvzB1j2iq5l7NnuiFSml5dgoS"
+        "1IJb-VYF_O79o29wqhyFPf-n-S5JXnboe"
+        "14MicxjgnX0AWe8J3q0fzmA0XPyWlBmdu"
+        "1rFpDbAJqpPpGbLjvnWVpF_NlTNk0LNfQ"
 )
 
 read -p "Shard ID (0-$lastShard, leave empty for random): " shardID
