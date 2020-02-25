@@ -36,23 +36,24 @@ echo -e "${c2}"
 
 freeSpaceKB=$(df -Pk . | sed 1d | grep -v used | awk '{ print $4 "\t" }')
 if [ "$freeSpaceKB" -lt $minSpaceKB ]; then
-	read -p "Not enough disk space, are you sure you want to continue? (y/n): " continue
-	if [ "$continue" != "y" ]; then
-		exit
-	fi
-	echo ""
+        read -p "Not enough disk space, are you sure you want to continue? (y/n): " continue
+        if [ "$continue" != "y" ]; then
+                exit
+        fi
+        echo ""
 fi
 
 read -p "Base directory (default: tma): " baseDir
 read -p "Install libraries + gdown (y/n) (default: n): " installLibs
 read -p "Ports (x = shard ID) (default: 400x): " ports
-read -p "Download bootstraps? (y/n) (default: y): " useBootstrap
+read -p "Download bootstraps (y/n) (default: y): " useBootstrap
 read -p "Proof file (absolute path) (default: $(pwd)/proof): " pfPath
+read -p "Import keys (y/n) (default: n): " importKeys
 
 echo -e "${c0}"
 
 if [ -z "$baseDir" ]; then
-	baseDir="tma"
+        baseDir="tma"
 fi
 
 if [ -z "$installLibs" ]; then
@@ -68,102 +69,126 @@ if [ -z "$useBootstrap" ]; then
 fi
 
 if [ -z "$pfPath" ]; then
-	pfPath="$(pwd)/proof"
+        pfPath="$(pwd)/proof"
+fi
+
+if [ -z "$importKeys" ]; then
+        importKeys="n"
 fi
 
 setup () {
-	echo -e "${c1}"
+        echo -e "${c1}"
         echo "Installing libraries..."
-	echo -n -e "${c0}"
+        echo -n -e "${c0}"
         sudo apt-get update
         sudo apt-get install -y openjdk-11-jdk haveged git unzip wget
 
-	echo -e "${c1}"
+        echo -e "${c1}"
         echo "Downloading gdown..."
-	echo -n -e "${c0}"
+        echo -n -e "${c0}"
         wget https://raw.githubusercontent.com/circulosmeos/gdown.pl/15557edc15ad507de3cb849975897e6eec799dc0/gdown.pl
         chmod +x gdown.pl
+}
+
+importKey () {
+        echo -e "${c2}"
+        read -p "Enter keys.csv content: " keys
+        echo -e "${c0}"
+        echo $keys >> config/keys.csv
+
+        echo -e "${c1}"
+        echo "Importing key..."
+        echo -e "${c0}"
+        ./importkeys.sh
+}
+
+genKey () {
+        echo -e "${c1}"
+        echo "Adding new key..."
+        echo -n -e "${c0}"
+        ./addnewkey.sh
+
+        echo -e "${c1}"
+        echo "Exporting keys..."
+        echo -n -e "${c0}"
+        ./exportkeys.sh
 }
 
 setupNode () {
         local ID=$1
         local port=$2
 
-	if [ -d "tma$ID" ]; then
-		echo -n -e "${c1}"
-		echo "Directory tma$ID already exists, skipping..."
-		echo -n -e "${c0}"
-		return
-	fi
+        if [ -d "tma$ID" ]; then
+                echo -n -e "${c1}"
+                echo "Directory tma$ID already exists, skipping..."
+                echo -n -e "${c0}"
+                return
+        fi
 
-	echo -e "${c1}"
+        echo -e "${c1}"
         echo "Setting up TMA node on shard $1"
-	echo -e "${c0}"
+        echo -e "${c0}"
 
         git clone https://github.com/tmacoin/tma tma$ID
         cd tma$ID
 
         if [ "$useBootstrap" = "y" ]; then
-		echo -e "${c1}"
+                echo -e "${c1}"
                 echo "(#$ID) Downloading bootstrap..."
-		echo -n -e "${c0}"
+                echo -n -e "${c0}"
 
                 ../../gdown.pl "https://drive.google.com/uc?id=${bootstrap[$ID]}" data$ID.zip
                 unzip data$ID.zip && rm data$ID.zip gdown*
         fi
 
-	echo -e "${c1}"
+        echo -e "${c1}"
         echo "Setting up scripts..."
-	echo -n -e "${c0}"
-
-        chmod +x tma.sh addnewkey.sh exportkeys.sh
+        echo -n -e "${c0}"
+	
+        chmod +x tma.sh addnewkey.sh exportkeys.sh importkeys.sh
         sed -i "s/4000/$port/" tma.sh
-	sed -i "s/config\/proof\"//" tma.sh
-	echo "${pfPath}/proof\"" >> tma.sh
+        sed -i "s/config\/proof\"//" tma.sh
+        echo "${pfPath}/proof\"" >> tma.sh
         sed -i "s/<power>/$shardingPower/" addnewkey.sh
         sed -i "s/<shard id>/$ID/" addnewkey.sh
 
-	echo -e "${c1}"
-        echo "Adding new key..."
-	echo -n -e "${c0}"
-        ./addnewkey.sh
+        if [ "$importKeys" = "y" ]; then
+                importKey
+        else
+                genKey
+        fi
 
-	echo -e "${c1}"
-        echo "Exporting keys..."
-	echo -n -e "${c0}"
-        ./exportkeys.sh
+        echo -e "${c1}"
+        echo "Done!"
+        echo -e "${c0}"
 
-	echo -e "${c1}"
-	echo "Done!"
-	echo -e "${c0}"
-
-	cd ..
+        cd ..
 }
 
 run() {
         if [ "$installLibs" = "y" ]; then
-		echo -e "${c1}"
+                echo -e "${c1}"
                 echo "Running setup..."
-		echo -e "${c0}"
+                echo -e "${c0}"
                 setup
-	fi
+        fi
 
 
-	if [ ! -d "$baseDir" ]; then
-		mkdir $baseDir
-	fi
-	cd $baseDir
+        if [ ! -d "$baseDir" ]; then
+                mkdir $baseDir
+        fi
+        cd $baseDir
 
-	echo -e "${c1}"
+        echo -e "${c1}"
         echo "Setting up nodes on shards 0-$lastShard"
-	echo -e "${c0}"
+        echo -e "${c0}"
         for i in {0..7}; do
                 setupNode $i $(echo "$ports" | sed "s/x/$i/")
         done
 
-	echo -e "${c1}"
-	echo "All done!"
-	echo -e "${c0}"
+        echo -e "${c1}"
+        echo "All done!"
+        echo -e "${c0}"
 }
 
 run
